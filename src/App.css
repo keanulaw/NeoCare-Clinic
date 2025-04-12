@@ -1,38 +1,207 @@
-.App {
-  text-align: center;
+/* src/App.css */
+
+/* Define the color variables based on the provided theme */
+:root {
+  --primary: #D47FA6;      /* Primary accent color */
+  --secondary: #FF6F61;     /* Secondary color for highlights */
+  --background: #F5F5F5;    /* Light background color */
+  --text: #212529;         /* Text color */
+  --icon: #D47FA6;         /* Icon color */
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+body {
+  margin: 0;
+  font-family: 'Roboto', sans-serif;
+  background-color: var(--background);
+  color: var(--text);
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
+/* Layout: Sidebar and Main Content */
+.layout {
+  display: flex;
   min-height: 100vh;
+}
+
+/* Sidebar Styles */
+.sidebar {
+  width: 250px;
+  background-color: var(--primary);
+  padding: 20px;
+  color: #fff;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  justify-content: space-between;
 }
 
-.App-link {
-  color: #61dafb;
+.sidebar h2 {
+  margin: 0 0 30px;
+  font-size: 1.8em;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.sidebar nav ul {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar nav ul li {
+  margin: 15px 0;
+}
+
+.sidebar nav ul li a {
+  text-decoration: none;
+  color: #fff;
+  font-size: 1.1em;
+  padding: 10px 15px;
+  border-radius: 4px;
+  display: block;
+}
+
+.sidebar nav ul li a.active,
+.sidebar nav ul li a:hover {
+  background-color: var(--secondary);
+}
+
+.logout-button {
+  background-color: var(--secondary);
+  color: #fff;
+  border: none;
+  padding: 10px;
+  width: 100%;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.logout-button:hover {
+  background-color: #b04d60;
+}
+
+/* Main Content Area */
+.main-content {
+  flex: 1;
+  padding: 30px;
+  overflow-y: auto;
+}
+
+/* Common Page Container */
+.page-container {
+  background: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.page-container h2 {
+  color: var(--primary);
+  margin-bottom: 20px;
+}
+
+/* Application Cards for Provider Approvals */
+.application-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.application-card {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  flex: 1 1 calc(33.333% - 20px);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.application-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.application-card p {
+  margin: 8px 0;
+}
+
+/* Button Group within Cards */
+.button-group {
+  margin-top: 15px;
+}
+
+button {
+  border: none;
+  padding: 10px 20px;
+  margin-right: 10px;
+  border-radius: 4px;
+  font-size: 1em;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button.approve {
+  background-color: var(--primary);
+  color: #fff;
+}
+
+button.approve:hover {
+  background-color: var(--secondary);
+}
+
+button.decline {
+  background-color: var(--secondary);
+  color: #fff;
+}
+
+button.decline:hover {
+  background-color: #b04d60; /* Darker shade for hover */
+}
+
+/* Authentication Container */
+.auth-container {
+  max-width: 400px;
+  margin: 60px auto;
+  padding: 30px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.auth-container h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: var(--primary);
+}
+
+.auth-container form div {
+  margin-bottom: 15px;
+}
+
+.auth-container label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.auth-container input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.auth-container button {
+  width: 100%;
+  padding: 10px;
+  background-color: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.auth-container button:hover {
+  background-color: var(--secondary);
+}
+
+.auth-container p {
+  text-align: center;
+  margin-top: 15px;
 }
