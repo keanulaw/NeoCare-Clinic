@@ -3,7 +3,48 @@ import { useNavigate, Link } from 'react-router-dom';
 import { auth, db } from '../firebase';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
-import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api';
+import { 
+  GoogleMap, 
+  Marker, 
+  useLoadScript, 
+  Autocomplete 
+} from '@react-google-maps/api';
+
+const customMapStyles = [
+  {
+    featureType: "water",
+    elementType: "geometry",
+    stylers: [{ color: "#193341" }],
+  },
+  {
+    featureType: "landscape",
+    elementType: "geometry",
+    stylers: [{ color: "#2c5a71" }],
+  },
+  {
+    featureType: "road",
+    elementType: "geometry",
+    stylers: [{ color: "#29768a" }, { lightness: 0 }],
+  },
+  {
+    featureType: "poi",
+    elementType: "geometry",
+    stylers: [{ color: "#406d80" }],
+  },
+  {
+    featureType: "transit",
+    elementType: "geometry",
+    stylers: [{ color: "#406d80" }],
+  },
+  {
+    elementType: "labels.text.stroke",
+    stylers: [{ visibility: "on" }, { color: "#3e606f" }, { weight: 2 }, { gamma: 0.84 }],
+  },
+  {
+    elementType: "labels.text.fill",
+    stylers: [{ color: "#ffffff" }],
+  },
+];
 
 const mapContainerStyle = {
   height: "400px",
@@ -11,8 +52,8 @@ const mapContainerStyle = {
 };
 
 const defaultCenter = {
-    lat: 10.3157,
-    lng: 123.8854, // Example: Manila longitude
+  lat: 10.3157,
+  lng: 123.8854, // Example: Manila longitude
 };
 
 function Register() {
@@ -23,21 +64,47 @@ function Register() {
   const [location, setLocation] = useState(defaultCenter);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-  
+  const [autocomplete, setAutocomplete] = useState(null);
+
   const navigate = useNavigate();
-  
+
+  // Use the useLoadScript hook to load the Google Maps API (including the places library)
+  const { isLoaded } = useLoadScript({
+    googleMapsApiKey: "AIzaSyBcJDGxtpPyKTJaH8VsPdWq3RkohUNkfd4", // Replace with your API key
+    libraries: ["places"],
+  });
+
   const handleMapClick = useCallback((event) => {
     setLocation({
       lat: event.latLng.lat(),
       lng: event.latLng.lng()
     });
   }, []);
-  
+
+  // Capture the autocomplete instance when it loads.
+  const onLoad = (autocompleteInstance) => {
+    setAutocomplete(autocompleteInstance);
+  };
+
+  // When a user selects a place, update the map center.
+  const onPlaceChanged = () => {
+    if (autocomplete !== null) {
+      const place = autocomplete.getPlace();
+      if (place?.geometry) {
+        setLocation({
+          lat: place.geometry.location.lat(),
+          lng: place.geometry.location.lng(),
+        });
+      }
+    } else {
+      console.log("Autocomplete is not loaded yet!");
+    }
+  };
+
   const handleRegister = async (e) => {
     e.preventDefault();
     setError(null);
 
-    // Basic validations
     if (!clinicName || !email || !password || !confirmPassword) {
       setError("Please fill in all required fields.");
       return;
@@ -50,27 +117,24 @@ function Register() {
       setError("Password must be at least 6 characters long.");
       return;
     }
-
     setLoading(true);
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       await updateProfile(userCredential.user, { displayName: clinicName });
-      
       await setDoc(doc(db, "users", userCredential.user.uid), {
         email,
         clinicName,
         location,
         role: "clinic"  // Mark as a clinic account
       });
-      
-      navigate('/portal'); // Redirect to the main portal on successful registration
+      navigate('/portal'); // Redirect on successful registration
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
   };
-  
+
   return (
     <div className="auth-container">
       <h2>Register Your Clinic</h2>
@@ -119,23 +183,40 @@ function Register() {
             required
           />
         </div>
+        
         <div className="form-group">
           <label>Clinic Location:</label>
-          <p>Please select your clinic's location on the map:</p>
-          <LoadScript googleMapsApiKey="AIzaSyBcJDGxtpPyKTJaH8VsPdWq3RkohUNkfd4">
-            <GoogleMap
-              mapContainerStyle={mapContainerStyle}
-              center={location}
-              zoom={15}
-              onClick={handleMapClick}
-            >
-              <Marker 
-                position={location} 
-                draggable={true} 
-                onDragEnd={handleMapClick} 
-              />
-            </GoogleMap>
-          </LoadScript>
+          <p>Please select your clinic's location on the map or search for it:</p>
+          {isLoaded ? (
+            <>
+              <Autocomplete onLoad={onLoad} onPlaceChanged={onPlaceChanged}>
+                <input
+                  type="text"
+                  placeholder="Search for clinic location"
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                />
+              </Autocomplete>
+              <GoogleMap
+                mapContainerStyle={mapContainerStyle}
+                center={location}
+                zoom={15}
+                onClick={handleMapClick}
+                options={{
+                  styles: customMapStyles,
+                  streetViewControl: false,
+                  mapTypeControl: false,
+                }}
+              >
+                <Marker 
+                  position={location} 
+                  draggable={true} 
+                  onDragEnd={handleMapClick} 
+                />
+              </GoogleMap>
+            </>
+          ) : (
+            <p>Loading map...</p>
+          )}
         </div>
         {error && <p className="error-message">{error}</p>}
         <button type="submit" disabled={loading}>

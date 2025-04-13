@@ -8,22 +8,22 @@ function Sidebar() {
       <nav>
         <ul>
           <li>
-            <NavLink end to="/" className={({ isActive }) => isActive ? 'active' : ''}>
+            <NavLink end to="/portal" className={({ isActive }) => isActive ? 'active' : ''}>
               Overview
             </NavLink>
           </li>
           <li>
-            <NavLink to="/approvals" className={({ isActive }) => isActive ? 'active' : ''}>
+            <NavLink to="/portal/approvals" className={({ isActive }) => isActive ? 'active' : ''}>
               Provider Approvals
             </NavLink>
           </li>
           <li>
-            <NavLink to="/financial" className={({ isActive }) => isActive ? 'active' : ''}>
+            <NavLink to="/portal/financial" className={({ isActive }) => isActive ? 'active' : ''}>
               Financial Overview
             </NavLink>
           </li>
           <li>
-            <NavLink to="/reports" className={({ isActive }) => isActive ? 'active' : ''}>
+            <NavLink to="/portal/reports" className={({ isActive }) => isActive ? 'active' : ''}>
               Reports
             </NavLink>
           </li>

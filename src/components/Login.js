@@ -15,7 +15,7 @@ function Login() {
     setError(null);
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      navigate('/'); // Redirect to main portal (Overview) on successful login
+      navigate('/portal/*'); // Redirect to main portal (Overview) on successful login
     } catch (err) {
       setError(err.message);
     }
