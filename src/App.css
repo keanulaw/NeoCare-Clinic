@@ -34,7 +34,6 @@ body {
   color: #fff;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
 }
 
 .sidebar h2 {

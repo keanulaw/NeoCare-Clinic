@@ -1,6 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { db } from '../firebase';
-import { collection, query, where, getDocs, updateDoc, doc } from "firebase/firestore";
+import React, { useState, useEffect } from "react";
+import { db } from "../firebase";
+import {
+  collection,
+  query,
+  where,
+  getDocs,
+  updateDoc,
+  doc,
+} from "firebase/firestore";
 
 function ProviderApprovals() {
   const [providers, setProviders] = useState([]);
@@ -9,7 +16,10 @@ function ProviderApprovals() {
   const fetchProviders = async () => {
     try {
       // Query the "consultants" collection for documents with approvalStatus "pending"
-      const q = query(collection(db, "consultants"), where("approvalStatus", "==", "pending"));
+      const q = query(
+        collection(db, "consultants"),
+        where("approvalStatus", "==", "pending")
+      );
       const querySnapshot = await getDocs(q);
       const result = [];
       querySnapshot.forEach((docSnap) => {
@@ -38,32 +48,40 @@ function ProviderApprovals() {
       fetchProviders();
     } catch (error) {
       console.error("Error updating provider:", error);
-      alert("There was an error updating the provider status. Please try again.");
+      alert(
+        "There was an error updating the provider status. Please try again."
+      );
     }
   };
 
   return (
     <div className="approvals-container">
-      <h2>Provider Approvals</h2>
+      <h2 className="font-bold text-3xl mb-5">Provider Approvals</h2>
       {providers.length === 0 ? (
         <p>There are no pending provider applications at this time.</p>
       ) : (
         <div className="application-cards">
-          {providers.map(provider => (
+          {providers.map((provider) => (
             <div key={provider.id} className="application-card">
-              <p><strong>Name:</strong> {provider.name}</p>
-              <p><strong>Specialty:</strong> {provider.specialty}</p>
-              <p><strong>Email:</strong> {provider.email}</p>
+              <p>
+                <strong>Name:</strong> {provider.name}
+              </p>
+              <p>
+                <strong>Specialty:</strong> {provider.specialty}
+              </p>
+              <p>
+                <strong>Email:</strong> {provider.email}
+              </p>
               <div className="button-group">
-                <button 
-                  className="accept" 
-                  onClick={() => handleApproval(provider.id, 'accepted')}
+                <button
+                  className="accept"
+                  onClick={() => handleApproval(provider.id, "accepted")}
                 >
                   Accept
                 </button>
-                <button 
-                  className="reject" 
-                  onClick={() => handleApproval(provider.id, 'rejected')}
+                <button
+                  className="reject"
+                  onClick={() => handleApproval(provider.id, "rejected")}
                 >
                   Reject
                 </button>
