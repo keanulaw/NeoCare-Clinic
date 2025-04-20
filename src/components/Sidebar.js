@@ -1,12 +1,12 @@
-import { NavLink } from "react-router-dom";
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { signOut } from "firebase/auth";
 import { auth } from "../firebase";
 
 function Sidebar() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  
   const logout = async () => {
     try {
       setLoading(true);
@@ -20,18 +20,9 @@ function Sidebar() {
 
   return (
     <div className="sidebar">
-      <h2 className="font-bold text-3xl mb-5 text-center">Clinic Portal</h2>
+      <h2 className="font-bold text-3xl mb-5 text-center">Birth Center Portal</h2>
       <nav>
         <ul>
-          <li>
-            <NavLink
-              end
-              to="/portal"
-              className={({ isActive }) => (isActive ? "active" : "")}
-            >
-              Overview
-            </NavLink>
-          </li>
           <li>
             <NavLink
               to="/portal/approvals"
