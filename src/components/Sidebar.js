@@ -20,7 +20,7 @@ function Sidebar() {
 
   return (
     <div className="sidebar">
-      <h2 className="font-bold text-3xl mb-5 text-center">Clinic Portal</h2>
+      <h2 className="font-bold text-3xl mb-5 text-center">Birth Center Portal</h2>
       <nav>
         <ul>
           <li>
