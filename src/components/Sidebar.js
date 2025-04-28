@@ -6,7 +6,7 @@ import { auth } from "../firebase";
 function Sidebar() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  
+
   const logout = async () => {
     try {
       setLoading(true);
@@ -20,7 +20,16 @@ function Sidebar() {
 
   return (
     <div className="sidebar">
-      <h2 className="font-bold text-3xl mb-5 text-center">Birth Center Portal</h2>
+      <div className="flex justify-center ">
+        <img
+          src="/Logo.png"
+          alt="NeoCare Logo"
+          className="bg-white p-1 rounded-full"
+        />
+      </div>
+      <h2 className="font-bold text-3xl mb-5 text-center">
+        Birth Center Portal
+      </h2>
       <nav>
         <ul>
           <li>
@@ -33,14 +42,6 @@ function Sidebar() {
           </li>
           <li>
             <NavLink
-              to="/portal/financial"
-              className={({ isActive }) => (isActive ? "active" : "")}
-            >
-              Financial Overview
-            </NavLink>
-          </li>
-          <li>
-            <NavLink
               to="/portal/reports"
               className={({ isActive }) => (isActive ? "active" : "")}
             >
@@ -49,8 +50,8 @@ function Sidebar() {
           </li>
           <li>
             <NavLink
-              onClick={logout}
-              className="text-white text-lg cursor-pointer"
+              to="/logout"
+              className={({ isActive }) => (isActive ? "active" : "")}
             >
               Logout
             </NavLink>
