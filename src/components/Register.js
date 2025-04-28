@@ -1,14 +1,14 @@
-import React, { useState, useCallback } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { auth, db } from '../firebase';
-import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
-import { 
-  GoogleMap, 
-  Marker, 
-  useLoadScript, 
-  Autocomplete 
-} from '@react-google-maps/api';
+import React, { useState, useCallback } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { auth, db } from "../firebase";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { doc, setDoc } from "firebase/firestore";
+import {
+  GoogleMap,
+  Marker,
+  useLoadScript,
+  Autocomplete,
+} from "@react-google-maps/api";
 
 const customMapStyles = [
   {
@@ -38,7 +38,12 @@ const customMapStyles = [
   },
   {
     elementType: "labels.text.stroke",
-    stylers: [{ visibility: "on" }, { color: "#3e606f" }, { weight: 2 }, { gamma: 0.84 }],
+    stylers: [
+      { visibility: "on" },
+      { color: "#3e606f" },
+      { weight: 2 },
+      { gamma: 0.84 },
+    ],
   },
   {
     elementType: "labels.text.fill",
@@ -48,7 +53,7 @@ const customMapStyles = [
 
 const mapContainerStyle = {
   height: "400px",
-  width: "100%"
+  width: "100%",
 };
 
 const defaultCenter = {
@@ -57,10 +62,10 @@ const defaultCenter = {
 };
 
 function Register() {
-  const [clinicName, setClinicName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [clinicName, setClinicName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [location, setLocation] = useState(defaultCenter);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -77,7 +82,7 @@ function Register() {
   const handleMapClick = useCallback((event) => {
     setLocation({
       lat: event.latLng.lat(),
-      lng: event.latLng.lng()
+      lng: event.latLng.lng(),
     });
   }, []);
 
@@ -119,15 +124,19 @@ function Register() {
     }
     setLoading(true);
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
       await updateProfile(userCredential.user, { displayName: clinicName });
       await setDoc(doc(db, "users", userCredential.user.uid), {
         email,
         clinicName,
         location,
-        role: "clinic"  // Mark as a clinic account
+        role: "clinic", // Mark as a clinic account
       });
-      navigate('/portal'); // Redirect on successful registration
+      navigate("/portal"); // Redirect on successful registration
     } catch (err) {
       setError(err.message);
     } finally {
@@ -137,11 +146,11 @@ function Register() {
 
   return (
     <div className="auth-container">
-      <h2>Register Your Clinic</h2>
+      <h2 className="text-2xl font-bold">Register Your Clinic</h2>
       <form onSubmit={handleRegister} className="form">
         <div className="form-group">
           <label htmlFor="clinicName">Clinic Name:</label>
-          <input 
+          <input
             id="clinicName"
             type="text"
             value={clinicName}
@@ -152,7 +161,7 @@ function Register() {
         </div>
         <div className="form-group">
           <label htmlFor="email">Email:</label>
-          <input 
+          <input
             id="email"
             type="email"
             value={email}
@@ -163,7 +172,7 @@ function Register() {
         </div>
         <div className="form-group">
           <label htmlFor="password">Password:</label>
-          <input 
+          <input
             id="password"
             type="password"
             value={password}
@@ -174,7 +183,7 @@ function Register() {
         </div>
         <div className="form-group">
           <label htmlFor="confirmPassword">Confirm Password:</label>
-          <input 
+          <input
             id="confirmPassword"
             type="password"
             value={confirmPassword}
@@ -183,10 +192,12 @@ function Register() {
             required
           />
         </div>
-        
+
         <div className="form-group">
           <label>Clinic Location:</label>
-          <p>Please select your clinic's location on the map or search for it:</p>
+          <p>
+            Please select your clinic's location on the map or search for it:
+          </p>
           {isLoaded ? (
             <>
               <Autocomplete onLoad={onLoad} onPlaceChanged={onPlaceChanged}>
@@ -207,10 +218,10 @@ function Register() {
                   mapTypeControl: false,
                 }}
               >
-                <Marker 
-                  position={location} 
-                  draggable={true} 
-                  onDragEnd={handleMapClick} 
+                <Marker
+                  position={location}
+                  draggable={true}
+                  onDragEnd={handleMapClick}
                 />
               </GoogleMap>
             </>
@@ -224,7 +235,10 @@ function Register() {
         </button>
       </form>
       <p>
-        Already have an account? <Link to="/login">Login here</Link>.
+        Already have an account?{" "}
+        <Link to="/login" className="text-[#d47fa6] underline">
+          Login here
+        </Link>
       </p>
     </div>
   );

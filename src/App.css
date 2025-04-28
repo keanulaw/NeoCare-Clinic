@@ -80,6 +80,7 @@ body {
 
 /* Main Content Area */
 .main-content {
+  height: 100vh;
   flex: 1;
   padding: 30px;
   overflow-y: auto;
@@ -160,7 +161,7 @@ button.decline:hover {
 
 /* Authentication Container */
 .auth-container {
-  max-width: 400px;
+  min-width: 400px;
   margin: 60px auto;
   padding: 30px;
   background: #fff;

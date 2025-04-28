@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { db } from "../firebase";
 import {
@@ -12,7 +11,7 @@ import {
 
 function ProviderApprovals() {
   const [providers, setProviders] = useState([]);
-  const [rates, setRates] = useState({});          // track hourly rates by provider ID
+  const [rates, setRates] = useState({}); // track hourly rates by provider ID
   const [loading, setLoading] = useState(false);
 
   /* ───────── load pending applications ───────── */
@@ -72,10 +71,12 @@ function ProviderApprovals() {
 
       await updateDoc(ref, payload);
       alert(`Provider application has been ${status}.`);
-      fetchProviders();                         // refresh list
+      fetchProviders(); // refresh list
     } catch (err) {
       console.error("Error updating provider:", err);
-      alert("There was an error updating the provider status. Please try again.");
+      alert(
+        "There was an error updating the provider status. Please try again."
+      );
     }
   };
 
@@ -122,13 +123,13 @@ function ProviderApprovals() {
 
               <div className="button-group mt-3">
                 <button
-                  className="accept"
+                  className="accept bg-green-400"
                   onClick={() => handleApproval(provider.id, "accepted")}
                 >
                   Accept
                 </button>
                 <button
-                  className="reject ml-2"
+                  className="reject ml-2 bg-red-400"
                   onClick={() => handleApproval(provider.id, "rejected")}
                 >
                   Reject
@@ -142,4 +143,3 @@ function ProviderApprovals() {
   );
 }
 export default ProviderApprovals;
-
