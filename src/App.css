@@ -213,3 +213,90 @@ button.decline:hover {
 .debug {
   border: 1px solid red;
 }
+
+/* ─── DashboardScreen Styles ───────────────────────────────────────── */
+
+.dashboard-container {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+  font-family: "Roboto", sans-serif;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.back-link {
+  text-decoration: none;
+  color: var(--text);
+  font-size: 0.9rem;
+}
+
+.loading,
+.no-apps {
+  text-align: center;
+  color: #777;
+  margin-top: 2rem;
+}
+
+.application-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+.application-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  background: #fff;
+}
+
+.application-info p {
+  margin: 0.25rem 0;
+}
+
+.application-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.accept {
+  background-color: var(--primary);
+  color: #fff;
+}
+
+.accept:hover:not(:disabled) {
+  background-color: var(--secondary);
+}
+
+.reject {
+  background-color: var(--secondary);
+  color: #fff;
+}
+
+.reject:hover:not(:disabled) {
+  background-color: #b04d60;
+}
