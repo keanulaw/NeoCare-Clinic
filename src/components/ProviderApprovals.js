@@ -93,43 +93,44 @@ function ProviderApprovals() {
         <div className="application-cards">
           {providers.map((provider) => (
             <div key={provider.id} className="application-card">
-              <p>
-                <strong>Name:</strong> {provider.name}
-              </p>
-              <p>
-                <strong>Specialty:</strong> {provider.specialty}
-              </p>
-              <p>
-                <strong>Email:</strong> {provider.email}
-              </p>
-
-              {/* hourly‑rate input */}
-              <div className="mt-2">
-                <label className="block mb-1 font-medium">
-                  Hourly Rate (₱)
-                </label>
-                <input
-                  type="number"
-                  min="0"
-                  step="any"
-                  className="rate-input px-2 py-1 border rounded w-32"
-                  placeholder="e.g. 750"
-                  value={rates[provider.id] ?? ""}
-                  onChange={(e) =>
-                    setRates({ ...rates, [provider.id]: e.target.value })
-                  }
-                />
+              <div className=" w-full">
+                <p>
+                  <strong>Name:</strong> {provider.name}
+                </p>
+                <p>
+                  <strong>Specialty:</strong> {provider.specialty}
+                </p>
+                <p>
+                  <strong>Email:</strong> {provider.email}
+                </p>
+                {/* hourly‑rate input */}
+                <div className="mt-2">
+                  <label className="block mb-1 font-medium">
+                    Hourly Rate (₱)
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="any"
+                    className="rate-input px-2 py-1 border rounded w-32"
+                    placeholder="e.g. 750"
+                    value={rates[provider.id] ?? ""}
+                    onChange={(e) =>
+                      setRates({ ...rates, [provider.id]: e.target.value })
+                    }
+                  />
+                </div>
               </div>
 
               <div className="button-group mt-3">
                 <button
-                  className="accept bg-green-400"
+                  className="accept"
                   onClick={() => handleApproval(provider.id, "accepted")}
                 >
                   Accept
                 </button>
                 <button
-                  className="reject ml-2 bg-red-400"
+                  className="reject ml-2"
                   onClick={() => handleApproval(provider.id, "rejected")}
                 >
                   Reject
