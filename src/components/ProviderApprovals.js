@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { db } from "../firebase";
+import { db, auth } from "../firebase";
 import {
   collection,
   query,
@@ -9,27 +9,35 @@ import {
   doc,
 } from "firebase/firestore";
 
-function ProviderApprovals() {
+export default function ProviderApprovals() {
   const [providers, setProviders] = useState([]);
-  const [rates, setRates] = useState({}); // track hourly rates by provider ID
+  const [rates, setRates] = useState({});          // track hourly rates by provider ID
   const [loading, setLoading] = useState(false);
 
-  /* ───────── load pending applications ───────── */
+  /* ───────── load pending applications for *this* clinic ───────── */
   const fetchProviders = async () => {
     setLoading(true);
     try {
+      const clinicId = auth.currentUser.uid;  // Only fetch for logged-in clinic
+
       const q = query(
         collection(db, "consultants"),
-        where("approvalStatus", "==", "pending")
+        where("approvalStatus", "==", "pending"),
+        where("clinicId", "==", clinicId)     // Filter by clinicId
       );
       const qs = await getDocs(q);
-      const data = [];
-      qs.forEach((snap) => data.push({ id: snap.id, ...snap.data() }));
+
+      const data = qs.docs.map((snap) => ({
+        id: snap.id,
+        ...snap.data(),
+      }));
       setProviders(data);
 
-      // initialise rate map (preserves any typing if user refreshes list)
+      // Initialize hourly-rate map (preserves any existing entries)
       const map = {};
-      data.forEach((p) => (map[p.id] = rates[p.id] ?? ""));
+      data.forEach((p) => {
+        map[p.id] = rates[p.id] ?? "";
+      });
       setRates(map);
     } catch (err) {
       console.error("Error fetching providers:", err);
@@ -71,12 +79,10 @@ function ProviderApprovals() {
 
       await updateDoc(ref, payload);
       alert(`Provider application has been ${status}.`);
-      fetchProviders(); // refresh list
+      fetchProviders();                         // refresh list
     } catch (err) {
       console.error("Error updating provider:", err);
-      alert(
-        "There was an error updating the provider status. Please try again."
-      );
+      alert("There was an error updating the provider status. Please try again.");
     }
   };
 
@@ -93,33 +99,32 @@ function ProviderApprovals() {
         <div className="application-cards">
           {providers.map((provider) => (
             <div key={provider.id} className="application-card">
-              <div className=" w-full">
-                <p>
-                  <strong>Name:</strong> {provider.name}
-                </p>
-                <p>
-                  <strong>Specialty:</strong> {provider.specialty}
-                </p>
-                <p>
-                  <strong>Email:</strong> {provider.email}
-                </p>
-                {/* hourly‑rate input */}
-                <div className="mt-2">
-                  <label className="block mb-1 font-medium">
-                    Hourly Rate (₱)
-                  </label>
-                  <input
-                    type="number"
-                    min="0"
-                    step="any"
-                    className="rate-input px-2 py-1 border rounded w-32"
-                    placeholder="e.g. 750"
-                    value={rates[provider.id] ?? ""}
-                    onChange={(e) =>
-                      setRates({ ...rates, [provider.id]: e.target.value })
-                    }
-                  />
-                </div>
+              <p>
+                <strong>Name:</strong> {provider.name}
+              </p>
+              <p>
+                <strong>Specialty:</strong> {provider.specialization}
+              </p>
+              <p>
+                <strong>Email:</strong> {provider.email}
+              </p>
+
+              {/* hourly‑rate input */}
+              <div className="mt-2">
+                <label className="block mb-1 font-medium">
+                  Hourly Rate (₱)
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  step="any"
+                  className="rate-input px-2 py-1 border rounded w-32"
+                  placeholder="e.g. 750"
+                  value={rates[provider.id] ?? ""}
+                  onChange={(e) =>
+                    setRates({ ...rates, [provider.id]: e.target.value })
+                  }
+                />
               </div>
 
               <div className="button-group mt-3">
@@ -143,4 +148,4 @@ function ProviderApprovals() {
     </div>
   );
 }
-export default ProviderApprovals;
+
