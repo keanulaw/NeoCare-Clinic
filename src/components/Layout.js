@@ -6,7 +6,7 @@ function Layout() {
   return (
     <div className="layout">
       <Sidebar />
-      <div className="main-content">
+      <div className="main-content bg-gradient-to-b from-white to-[#F2C2DE]">
         <Outlet />
       </div>
     </div>
