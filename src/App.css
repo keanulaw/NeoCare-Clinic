@@ -161,7 +161,7 @@ button.decline:hover {
 
 /* Authentication Container */
 .auth-container {
-  min-width: 400px;
+  width: 800px;
   margin: 60px auto;
   padding: 30px;
   background: #fff;

@@ -11,34 +11,28 @@ import {
 
 export default function ProviderApprovals() {
   const [providers, setProviders] = useState([]);
-  const [rates, setRates] = useState({});          // track hourly rates by provider ID
+  const [rates, setRates] = useState({});
   const [loading, setLoading] = useState(false);
 
-  /* ───────── load pending applications for *this* clinic ───────── */
   const fetchProviders = async () => {
     setLoading(true);
     try {
-      const clinicId = auth.currentUser.uid;  // Only fetch for logged-in clinic
-
+      const clinicId = auth.currentUser?.uid;
       const q = query(
         collection(db, "consultants"),
         where("approvalStatus", "==", "pending"),
-        where("clinicId", "==", clinicId)     // Filter by clinicId
+        where("clinicId", "==", clinicId)
       );
       const qs = await getDocs(q);
+      const data = qs.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 
-      const data = qs.docs.map((snap) => ({
-        id: snap.id,
-        ...snap.data(),
-      }));
       setProviders(data);
 
-      // Initialize hourly-rate map (preserves any existing entries)
-      const map = {};
+      const rateMap = {};
       data.forEach((p) => {
-        map[p.id] = rates[p.id] ?? "";
+        rateMap[p.id] = rates[p.id] ?? "";
       });
-      setRates(map);
+      setRates(rateMap);
     } catch (err) {
       console.error("Error fetching providers:", err);
     } finally {
@@ -51,25 +45,23 @@ export default function ProviderApprovals() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  /* ───────── approve / reject ───────── */
   const handleApproval = async (id, status) => {
-    // require hourly‑rate when accepting
     if (status === "accepted") {
-      const raw = rates[id]?.toString().trim();
-      const num = Number(raw);
+      const input = rates[id]?.toString().trim();
+      const hourlyRate = Number(input);
 
-      if (!raw || Number.isNaN(num) || num <= 0) {
+      if (!input || isNaN(hourlyRate) || hourlyRate <= 0) {
         alert("Please enter a valid hourly rate greater than 0.");
         return;
       }
 
-      await writeUpdate(id, status, num);
+      await updateStatus(id, status, hourlyRate);
     } else {
-      await writeUpdate(id, status);
+      await updateStatus(id, status);
     }
   };
 
-  const writeUpdate = async (id, status, hourlyRate = null) => {
+  const updateStatus = async (id, status, hourlyRate = null) => {
     try {
       const ref = doc(db, "consultants", id);
       const payload =
@@ -78,28 +70,32 @@ export default function ProviderApprovals() {
           : { approvalStatus: status };
 
       await updateDoc(ref, payload);
-      alert(`Provider application has been ${status}.`);
-      fetchProviders();                         // refresh list
+      alert(`Provider has been ${status}.`);
+      fetchProviders();
     } catch (err) {
-      console.error("Error updating provider:", err);
-      alert("There was an error updating the provider status. Please try again.");
+      console.error("Update error:", err);
+      alert("Error updating provider status. Please try again.");
     }
   };
 
-  /* ───────── UI ───────── */
   return (
-    <div className="approvals-container">
-      <h2 className="font-bold text-3xl mb-5">Provider Approvals</h2>
+    <div className="p-6 max-w-4xl mx-auto">
+      <h2 className="text-3xl font-bold mb-6">Provider Approvals</h2>
 
       {loading ? (
-        <p>Loading pending applications…</p>
+        <p className="text-gray-500">Loading pending applications…</p>
       ) : providers.length === 0 ? (
-        <p>There are no pending provider applications at this time.</p>
+        <p className="text-gray-500">
+          There are no pending provider applications.
+        </p>
       ) : (
-        <div className="application-cards">
+        <div className="grid gap-6">
           {providers.map((provider) => (
-            <div key={provider.id} className="application-card">
-              <p>
+            <div
+              key={provider.id}
+              className="p-5 bg-white rounded-xl shadow-md hover:shadow-lg transition"
+            >
+              <p className="text-lg">
                 <strong>Name:</strong> {provider.name}
               </p>
               <p>
@@ -109,16 +105,15 @@ export default function ProviderApprovals() {
                 <strong>Email:</strong> {provider.email}
               </p>
 
-              {/* hourly‑rate input */}
-              <div className="mt-2">
-                <label className="block mb-1 font-medium">
+              <div className="mt-4">
+                <label className="block text-sm font-medium mb-1">
                   Hourly Rate (₱)
                 </label>
                 <input
                   type="number"
                   min="0"
                   step="any"
-                  className="rate-input px-2 py-1 border rounded w-32"
+                  className="px-3 py-2 border rounded-md w-40"
                   placeholder="e.g. 750"
                   value={rates[provider.id] ?? ""}
                   onChange={(e) =>
@@ -127,15 +122,15 @@ export default function ProviderApprovals() {
                 />
               </div>
 
-              <div className="button-group mt-3">
+              <div className="mt-4 flex space-x-3">
                 <button
-                  className="accept"
+                  className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-semibold"
                   onClick={() => handleApproval(provider.id, "accepted")}
                 >
                   Accept
                 </button>
                 <button
-                  className="reject ml-2"
+                  className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-semibold"
                   onClick={() => handleApproval(provider.id, "rejected")}
                 >
                   Reject
@@ -148,4 +143,3 @@ export default function ProviderApprovals() {
     </div>
   );
 }
-

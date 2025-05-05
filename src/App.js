@@ -7,6 +7,7 @@ import ProviderApprovals from "./components/ProviderApprovals";
 import Reports from "./components/Reports";
 import "./App.css";
 import Layout from "./components/Layout";
+import Profile from "./components/Profile";
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
           <Route path="approvals" element={<ProviderApprovals />} />
           <Route path="reports" element={<Reports />} />
           <Route path="logout" element={<Login />} />
+          <Route path="profile" element={<Profile />} />
         </Route>
 
         {/* fallback */}
