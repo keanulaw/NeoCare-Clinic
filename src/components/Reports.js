@@ -174,9 +174,9 @@ export default function Reports() {
         ].map(({ label, value }) => (
           <div
             key={label}
-            className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition"
+            className="bg-white p-6  shadow-md hover:shadow-lg  rounded-2xl border-2 border-[#DA79B9] transition"
           >
-            <h3 className="text-md font-semibold text-gray-600">{label}</h3>
+            <h3 className="text-md font-semibold text-[#DA79B9]">{label}</h3>
             <p className="text-3xl font-bold mt-2">{value}</p>
           </div>
         ))}

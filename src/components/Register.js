@@ -145,7 +145,7 @@ function Register() {
   };
 
   return (
-    <div className="auth-container">
+    <div className="auth-container ">
       <h2 className="text-2xl font-bold">Register Your Clinic</h2>
       <form onSubmit={handleRegister} className="form">
         <div className="form-group">

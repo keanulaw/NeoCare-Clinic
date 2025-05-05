@@ -80,7 +80,7 @@ export default function ProviderApprovals() {
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
-      <h2 className="text-3xl font-bold mb-6">Provider Approvals</h2>
+      <h2 className="text-3xl font-bold mb-6">Pending Approvals</h2>
 
       {loading ? (
         <p className="text-gray-500">Loading pending applications…</p>
