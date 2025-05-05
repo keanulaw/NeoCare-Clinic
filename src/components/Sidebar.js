@@ -24,28 +24,6 @@ function Sidebar() {
     }
   };
 
-  useEffect(() => {
-    if (!auth.currentUser) return;
-
-    const fetchUsername = async () => {
-      try {
-        const userRef = doc(db, "users", auth.currentUser.uid);
-        const userSnap = await getDoc(userRef);
-
-        if (userSnap.exists()) {
-          const data = userSnap.data();
-          setUsername(data.clinicName || "Unnamed");
-        } else {
-          console.warn("No user data found for UID:", auth.currentUser.uid);
-        }
-      } catch (error) {
-        console.error("Error fetching user data:", error);
-      }
-    };
-
-    fetchUsername();
-  }, [auth.currentUser]);
-
   return (
     <div className="sidebar">
       <div className="flex justify-center ">
@@ -65,7 +43,7 @@ function Sidebar() {
               to="/portal/approvals"
               className={({ isActive }) => (isActive ? "active" : "")}
             >
-              Provider Approvals
+              Pending Approvals
             </NavLink>
           </li>
           <li>
@@ -78,6 +56,14 @@ function Sidebar() {
           </li>
           <li>
             <NavLink
+              to="/portal/profile"
+              className={({ isActive }) => (isActive ? "active" : "")}
+            >
+              Profile
+            </NavLink>
+          </li>
+          <li>
+            <NavLink
               to="/logout"
               className={({ isActive }) => (isActive ? "active" : "")}
             >
@@ -86,7 +72,6 @@ function Sidebar() {
           </li>
         </ul>
       </nav>
-      <label className="mx-3 mb-5 text-lg ">{username}</label>
     </div>
   );
 }

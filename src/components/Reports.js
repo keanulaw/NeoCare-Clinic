@@ -2,24 +2,23 @@ import React, { useState, useRef, useEffect } from "react";
 import { db } from "../firebase";
 import { collection, onSnapshot, query, where } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
-import { Timestamp } from "firebase/firestore";
 
 export default function Reports() {
+  const auth = getAuth();
+
   const [loading, setLoading] = useState(true);
   const [totalBookings, setTotalBookings] = useState(0);
   const [paidCount, setPaidCount] = useState(0);
   const [unpaidCount, setUnpaidCount] = useState(0);
   const [totalRevenue, setTotalRevenue] = useState(0);
+  const [consultants, setConsultants] = useState([]);
 
   const [isOpen, setIsOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState("Monthly");
   const dropdownRef = useRef();
 
-  const auth = getAuth();
-
   const options = ["Daily", "Weekly", "Monthly", "Quarterly", "Yearly"];
 
-  // Close dropdown on outside click
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -39,7 +38,6 @@ export default function Reports() {
     if (!auth.currentUser) return;
 
     const clinicId = auth.currentUser.uid;
-
     const bookingsRef = collection(db, "bookings");
     const userBookingsQuery = query(
       bookingsRef,
@@ -52,29 +50,23 @@ export default function Reports() {
         let paid = 0,
           unpaid = 0,
           revenue = 0;
-
         const now = new Date();
-        let startDate;
+        let startDate = new Date();
 
         switch (selectedOption) {
           case "Daily":
-            startDate = new Date(now);
             startDate.setHours(0, 0, 0, 0);
             break;
           case "Weekly":
-            startDate = new Date(now);
             startDate.setDate(now.getDate() - 7);
             break;
           case "Monthly":
-            startDate = new Date(now);
             startDate.setMonth(now.getMonth() - 1);
             break;
           case "Quarterly":
-            startDate = new Date(now);
             startDate.setMonth(now.getMonth() - 3);
             break;
           case "Yearly":
-            startDate = new Date(now);
             startDate.setFullYear(now.getFullYear() - 1);
             break;
           default:
@@ -84,14 +76,11 @@ export default function Reports() {
         snapshot.docs.forEach((doc) => {
           const data = doc.data();
           const createdAt = data.createdAt?.toDate?.();
-
           if (startDate && createdAt && createdAt < startDate) return;
 
           if (data.paymentStatus === "paid") {
             paid += 1;
-            if (typeof data.amount === "number") {
-              revenue += data.amount;
-            }
+            if (typeof data.amount === "number") revenue += data.amount;
           } else if (data.paymentStatus === "unpaid") {
             unpaid += 1;
           }
@@ -105,13 +94,34 @@ export default function Reports() {
       },
       (error) => {
         console.error("FinancialOverview listener error:", error);
-        alert("Failed to load financial data.");
         setLoading(false);
       }
     );
 
     return () => unsub();
   }, [selectedOption, auth.currentUser]);
+
+  useEffect(() => {
+    if (!auth.currentUser) return;
+
+    const clinicId = auth.currentUser.uid;
+
+    const consultantRef = collection(db, "consultants");
+    const consultantQuery = query(
+      consultantRef,
+      where("clinicId", "==", clinicId)
+    );
+
+    const unsubscribe = onSnapshot(consultantQuery, (snapshot) => {
+      const consultantList = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setConsultants(consultantList);
+    });
+
+    return () => unsubscribe();
+  }, [auth.currentUser]);
 
   const formatPHP = (cents) =>
     `₱${(cents / 100).toLocaleString(undefined, {
@@ -121,79 +131,71 @@ export default function Reports() {
 
   if (loading) {
     return (
-      <div className="page-container">
-        <p>Loading financial data…</p>
+      <div className="flex justify-center items-center h-60">
+        <p className="text-gray-500">Loading financial data…</p>
       </div>
     );
   }
 
   return (
-    <>
-      <div className="page-container">
-        <h2 className="text-2xl font-bold mb-4">Reports</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-lg font-semibold text-gray-700">
-              Total Bookings
-            </h3>
-            <p className="mt-2 text-3xl font-bold">{totalBookings}</p>
-          </div>
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-lg font-semibold text-gray-700">
-              Paid Bookings
-            </h3>
-            <p className="mt-2 text-3xl font-bold">{paidCount}</p>
-          </div>
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-lg font-semibold text-gray-700">
-              Unpaid Bookings
-            </h3>
-            <p className="mt-2 text-3xl font-bold">{unpaidCount}</p>
-          </div>
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-lg font-semibold text-gray-700">
-              Total Revenue
-            </h3>
-            <p className="mt-2 text-3xl font-bold">{formatPHP(totalRevenue)}</p>
-          </div>
-        </div>
-      </div>
-      <div className="relative inline-block text-left" ref={dropdownRef}>
-        <button
-          onClick={() => setIsOpen(!isOpen)}
-          className="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
-        >
-          {selectedOption}
-          <svg
-            className="ml-2 h-5 w-5"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 20 20"
-            fill="currentColor"
+    <div className="p-6 space-y-8">
+      <div className="flex justify-between items-center">
+        <h2 className="text-3xl font-bold">Reports</h2>
+        <div className="relative" ref={dropdownRef}>
+          <button
+            onClick={() => setIsOpen(!isOpen)}
+            className="px-4 py-2 bg-white border rounded-md shadow text-sm font-medium hover:bg-gray-100"
           >
-            <path
-              fillRule="evenodd"
-              d="M5.23 7.21a.75.75 0 011.06.02L10 10.939l3.71-3.71a.75.75 0 111.06 1.061l-4.24 4.25a.75.75 0 01-1.06 0l-4.25-4.25a.75.75 0 01.02-1.06z"
-              clipRule="evenodd"
-            />
-          </svg>
-        </button>
-
-        {isOpen && (
-          <div className="absolute -right-15 mt-2 w-44 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
-            <div className="py-1">
+            {selectedOption}
+            <span className="ml-2">&#9662;</span>
+          </button>
+          {isOpen && (
+            <div className="absolute right-0 mt-2 w-44 bg-white border rounded-md shadow-md z-10">
               {options.map((option) => (
                 <div
                   key={option}
                   onClick={() => handleSelect(option)}
-                  className="cursor-pointer px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm"
                 >
                   {option}
                 </div>
               ))}
             </div>
+          )}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {[
+          { label: "Total Bookings", value: totalBookings },
+          { label: "Paid Bookings", value: paidCount },
+          { label: "Unpaid Bookings", value: unpaidCount },
+          { label: "Total Revenue", value: formatPHP(totalRevenue) },
+        ].map(({ label, value }) => (
+          <div
+            key={label}
+            className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition"
+          >
+            <h3 className="text-md font-semibold text-gray-600">{label}</h3>
+            <p className="text-3xl font-bold mt-2">{value}</p>
           </div>
+        ))}
+      </div>
+
+      <div>
+        <h3 className="text-xl font-semibold mb-2">Affiliated Doctors</h3>
+        {consultants.length === 0 ? (
+          <p className="text-gray-500">No affiliated doctors found.</p>
+        ) : (
+          <ul className="list-disc list-inside space-y-1 text-gray-700">
+            {consultants.map((doctor) => (
+              <li key={doctor.id}>
+                {doctor.name || doctor.username || "Unnamed Doctor"}
+              </li>
+            ))}
+          </ul>
         )}
       </div>
-    </>
+    </div>
   );
 }
