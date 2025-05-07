@@ -13,31 +13,26 @@ export default function Reports() {
   const [totalRevenue, setTotalRevenue] = useState(0);
   const [consultants, setConsultants] = useState([]);
 
+  const [clinicId, setClinicId] = useState(null); // ✅ define this early
+
   const [isOpen, setIsOpen] = useState(false);
   const [selectedOption, setSelectedOption] = useState("Monthly");
   const dropdownRef = useRef();
 
   const options = ["Daily", "Weekly", "Monthly", "Quarterly", "Yearly"];
 
+  // ✅ Set clinicId once auth is available
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setIsOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+    const user = auth.currentUser;
+    if (user) {
+      setClinicId(user.uid);
+    }
+  }, [auth]);
 
-  const handleSelect = (option) => {
-    setSelectedOption(option);
-    setIsOpen(false);
-  };
-
+  // ✅ Use clinicId only AFTER it's set
   useEffect(() => {
-    if (!auth.currentUser) return;
+    if (!clinicId) return;
 
-    const clinicId = auth.currentUser.uid;
     const bookingsRef = collection(db, "bookings");
     const userBookingsQuery = query(
       bookingsRef,
@@ -99,12 +94,10 @@ export default function Reports() {
     );
 
     return () => unsub();
-  }, [selectedOption, auth.currentUser]);
+  }, [selectedOption, clinicId]);
 
   useEffect(() => {
-    if (!auth.currentUser) return;
-
-    const clinicId = auth.currentUser.uid;
+    if (!clinicId) return;
 
     const consultantRef = collection(db, "consultants");
     const consultantQuery = query(
@@ -121,7 +114,22 @@ export default function Reports() {
     });
 
     return () => unsubscribe();
-  }, [auth.currentUser]);
+  }, [clinicId]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleSelect = (option) => {
+    setSelectedOption(option);
+    setIsOpen(false);
+  };
 
   const formatPHP = (cents) =>
     `₱${(cents / 100).toLocaleString(undefined, {
@@ -182,18 +190,25 @@ export default function Reports() {
         ))}
       </div>
 
-      <div>
-        <h3 className="text-xl font-semibold mb-2">Affiliated Doctors</h3>
+      <div className="bg-white p-6 rounded-xl shadow-md">
+        <h3 className="text-xl font-bold text-gray-800 mb-4 border-b pb-2">
+          Affiliated Doctors
+        </h3>
         {consultants.length === 0 ? (
-          <p className="text-gray-500">No affiliated doctors found.</p>
+          <p className="text-gray-500 italic">No affiliated doctors found.</p>
         ) : (
-          <ul className="list-disc list-inside space-y-1 text-gray-700">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
             {consultants.map((doctor) => (
-              <li key={doctor.id}>
-                {doctor.name || doctor.username || "Unnamed Doctor"}
-              </li>
+              <div
+                key={doctor.id}
+                className="bg-gray-50 px-4 py-3 rounded-lg shadow-sm border hover:shadow-md transition"
+              >
+                <p className="text-gray-700 font-medium">
+                  {doctor.name || doctor.username || "Unnamed Doctor"}
+                </p>
+              </div>
             ))}
-          </ul>
+          </div>
         )}
       </div>
     </div>
