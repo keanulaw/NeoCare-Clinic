@@ -43,7 +43,7 @@ const Profile = () => {
             <div>
               <p className="text-sm text-gray-500">Clinic Name</p>
               <p className="text-xl font-semibold text-gray-800">
-                {userProfile.clinicName || "No Clinic Name"}
+                {userProfile.birthCenterName || "No Clinic Name"}
               </p>
             </div>
           </div>
@@ -54,10 +54,10 @@ const Profile = () => {
             <div>
               <p className="text-sm text-gray-500">Address</p>
               <p className="text-lg font-medium text-gray-700">
-                {userProfile.location?.address
-                  ? userProfile.location.address
-                  : userProfile.location
-                  ? `Lat: ${userProfile.location.lat}, Lng: ${userProfile.location.lng}`
+                {userProfile.birthCenterAddress
+                  ? userProfile.birthCenterAddress
+                  : userProfile.birthCenterLocation
+                  ? `Lat: ${userProfile.birthCenterLocation.lat}, Lng: ${userProfile.birthCenterLocation.lng}`
                   : "No address provided"}
               </p>
             </div>
