@@ -7,7 +7,6 @@ function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
-
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
@@ -15,7 +14,7 @@ function Login() {
     setError(null);
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      navigate("/portal/*"); // Redirect to main portal (Overview) on successful login
+      navigate("/portal/approvals");
     } catch (err) {
       setError(err.message);
     }

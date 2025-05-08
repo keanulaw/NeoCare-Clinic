@@ -31,7 +31,7 @@ const Profile = () => {
 
   return (
     <div className="p-6">
-      <h2 className="text-3xl font-semibold text-gray-800 mb-6 flex justify-center flex justify-center">
+      <h2 className="text-3xl font-semibold text-gray-800 mb-6 flex justify-center">
         Profile
       </h2>
 
