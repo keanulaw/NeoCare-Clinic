@@ -1,4 +1,3 @@
-// src/App.js
 import React from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./components/Login";
@@ -8,7 +7,6 @@ import Reports from "./components/Reports";
 import "./App.css";
 import Layout from "./components/Layout";
 import Profile from "./components/Profile";
-import HomeScreen from "./components/HomeScreen";
 
 function App() {
   return (
@@ -26,14 +24,13 @@ function App() {
           <Route index element={<Navigate to="approvals" replace />} />
 
           {/* provider approvals */}
-          <Route index element={<HomeScreen />} />
           <Route path="approvals" element={<ProviderApprovals />} />
           <Route path="reports" element={<Reports />} />
           <Route path="logout" element={<Login />} />
           <Route path="profile" element={<Profile />} />
         </Route>
 
-        {/* fallback */}
+        {/* Fallback Route */}
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>
