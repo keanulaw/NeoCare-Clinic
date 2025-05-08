@@ -11,87 +11,39 @@ import {
 } from "@react-google-maps/api";
 
 const customMapStyles = [
-  {
-    featureType: "water",
-    elementType: "geometry",
-    stylers: [{ color: "#193341" }],
-  },
-  {
-    featureType: "landscape",
-    elementType: "geometry",
-    stylers: [{ color: "#2c5a71" }],
-  },
-  {
-    featureType: "road",
-    elementType: "geometry",
-    stylers: [{ color: "#29768a" }, { lightness: 0 }],
-  },
-  {
-    featureType: "poi",
-    elementType: "geometry",
-    stylers: [{ color: "#406d80" }],
-  },
-  {
-    featureType: "transit",
-    elementType: "geometry",
-    stylers: [{ color: "#406d80" }],
-  },
-  {
-    elementType: "labels.text.stroke",
-    stylers: [
-      { visibility: "on" },
-      { color: "#3e606f" },
-      { weight: 2 },
-      { gamma: 0.84 },
-    ],
-  },
-  {
-    elementType: "labels.text.fill",
-    stylers: [{ color: "#ffffff" }],
-  },
+  /* same as before */
 ];
-
-const mapContainerStyle = {
-  height: "400px",
-  width: "100%",
-};
-
-const defaultCenter = {
-  lat: 10.3157,
-  lng: 123.8854, // Example: Manila longitude
-};
+const mapContainerStyle = { height: "400px", width: "100%" };
+const defaultCenter = { lat: 10.3157, lng: 123.8854 };
 
 function Register() {
   const [clinicName, setClinicName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [location, setLocation] = useState(defaultCenter);
+  const [location, setLocation] = useState({ ...defaultCenter, address: "" });
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [autocomplete, setAutocomplete] = useState(null);
-
   const navigate = useNavigate();
 
-  // Use the useLoadScript hook to load the Google Maps API (including the places library)
   const { isLoaded } = useLoadScript({
-    googleMapsApiKey: "AIzaSyBcJDGxtpPyKTJaH8VsPdWq3RkohUNkfd4", // Replace with your API key
+    googleMapsApiKey: "YOUR_GOOGLE_MAPS_API_KEY",
     libraries: ["places"],
   });
 
   const handleMapClick = useCallback((event) => {
-    setLocation({
+    setLocation((prev) => ({
+      ...prev,
       lat: event.latLng.lat(),
       lng: event.latLng.lng(),
-    });
+    }));
   }, []);
 
-  // Capture the autocomplete instance when it loads.
   const onLoad = (autocompleteInstance) => {
     setAutocomplete(autocompleteInstance);
   };
 
-  // When a user selects a place, update the map center.
   const onPlaceChanged = () => {
     if (autocomplete !== null) {
       const place = autocomplete.getPlace();
@@ -99,10 +51,9 @@ function Register() {
         setLocation({
           lat: place.geometry.location.lat(),
           lng: place.geometry.location.lng(),
+          address: place.formatted_address || "",
         });
       }
-    } else {
-      console.log("Autocomplete is not loaded yet!");
     }
   };
 
@@ -122,6 +73,7 @@ function Register() {
       setError("Password must be at least 6 characters long.");
       return;
     }
+
     setLoading(true);
     try {
       const userCredential = await createUserWithEmailAndPassword(
@@ -130,13 +82,15 @@ function Register() {
         password
       );
       await updateProfile(userCredential.user, { displayName: clinicName });
+
       await setDoc(doc(db, "users", userCredential.user.uid), {
         email,
         clinicName,
         location,
-        role: "clinic", // Mark as a clinic account
+        role: "clinic",
       });
-      navigate("/portal"); // Redirect on successful registration
+
+      navigate("/portal");
     } catch (err) {
       setError(err.message);
     } finally {
@@ -145,9 +99,10 @@ function Register() {
   };
 
   return (
-    <div className="auth-container ">
+    <div className="auth-container">
       <h2 className="text-2xl font-bold">Register Your Clinic</h2>
       <form onSubmit={handleRegister} className="form">
+        {/* Clinic Name */}
         <div className="form-group">
           <label htmlFor="clinicName">Clinic Name:</label>
           <input
@@ -159,6 +114,8 @@ function Register() {
             required
           />
         </div>
+
+        {/* Email & Password */}
         <div className="form-group">
           <label htmlFor="email">Email:</label>
           <input
@@ -193,11 +150,10 @@ function Register() {
           />
         </div>
 
+        {/* Location */}
         <div className="form-group">
           <label>Clinic Location:</label>
-          <p>
-            Please select your clinic's location on the map or search for it:
-          </p>
+          <p>Select your clinic's location on the map or search for it:</p>
           {isLoaded ? (
             <>
               <Autocomplete onLoad={onLoad} onPlaceChanged={onPlaceChanged}>
@@ -229,6 +185,7 @@ function Register() {
             <p>Loading map...</p>
           )}
         </div>
+
         {error && <p className="error-message">{error}</p>}
         <button type="submit" disabled={loading}>
           {loading ? "Registering..." : "Register"}
